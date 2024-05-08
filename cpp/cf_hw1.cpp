@@ -23,6 +23,9 @@ int main(){
     std::cout << "uniform distribution:" << uniform_num << std::endl;
 }
 
+// 정규분포 함수
+// input: (double mean, double std)
+// output: double num(정규분포를 따르는 난수)
 double norm_dist(double mean, double std){
     std::default_random_engine generator(std::random_device{}());
     std::normal_distribution<double> distribution(mean, std);
@@ -31,6 +34,9 @@ double norm_dist(double mean, double std){
     return num;
 }
 
+// 정규분포 함수
+// input: (double lower, double upper)
+// output: double num(균등분포를 따르는 난수)
 double uni_dist(double lower, double upper){
     std::default_random_engine generator(std::random_device{}());
     std::uniform_real_distribution<double> distribution(lower, upper);

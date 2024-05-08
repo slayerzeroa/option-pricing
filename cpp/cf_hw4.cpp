@@ -8,8 +8,8 @@ using namespace std;
 // Homework 4
 // Given asset path, use delta hedging for call option and visualize the result (save as an image file).
 
-vector<double> generate_discrete_path(double mu, double sigma, int len);
-vector<double> generate_continuous_path(double mu, double sigma, int len);
+vector<double> generate_discrete_path(double rf, double sigma, int len);
+vector<double> generate_continuous_path(double rf, double sigma, int len);
 
 double calculate_payoff(vector<double> s, double k, int type);
 double discount(double s, double rate, int len);
@@ -17,27 +17,27 @@ double mean(vector<double> array);
 
 
 double normalCDF(double value);
-double calD1(double s, double k, double mu, double sigma, int tau);
+double calD1(double s, double k, double rf, double sigma, int tau);
 double norm_dist();
 
 // to csv
 void saveToCSV(const vector<double>& data, const string& filename);
 
 
-vector<double> deltaHedge(double s, double k, double mu, double sigma, int tau);
+vector<double> deltaHedge(double s, double k, double rf, double sigma, int tau);
 
 int main(){
     vector<double> stock_path;
-    double mu, sigma, rf, k;
+    double sigma, rf, k;
     int len, m, type;
     double payoff, pv, result;
     cout << "Plese Enter the mu, sigma, and strike price" << endl;
-    cin >> mu >> sigma >> k;
+    cin >> rf >> sigma >> k;
 
     cout << "Please Enter the expiration date, simulation number and option type(put==0, call==1)" << endl;
     cin >> len >> m >> type;
 
-    stock_path = deltaHedge(100, k, mu, sigma, len);
+    stock_path = deltaHedge(100, k, rf, sigma, len);
     // Correct way to print the elements of a vector
     for (const double &value : stock_path) {
         cout << value << " ";
@@ -59,28 +59,28 @@ int main(){
 }
 
 
-vector<double> generate_discrete_path(double mu, double sigma, int len){
+vector<double> generate_discrete_path(double rf, double sigma, int len){
     vector<double> s(len);
     double st=100;
     double y;
     for (int i=0; i<len; ++i){
         s[i] = st;
         y = norm_dist();
-        st = st + mu * st + sigma * y * st;
+        st = st + rf * st + sigma * y * st;
 
         // cout << y << endl;
     }
     return s;
 }
 
-vector<double> generate_continuous_path(double mu, double sigma, int len){
+vector<double> generate_continuous_path(double rf, double sigma, int len){
     vector<double> s(len);
     double st=100;
     double y;
     for (int i=0; i<len; ++i){
         s[i] = st;
         y = norm_dist();
-        st = st * exp((mu - pow(0.5*sigma, 2)) + sigma * y);
+        st = st * exp((rf - pow(0.5*sigma, 2)) + sigma * y);
 
         // cout << y << endl;
     }
@@ -134,29 +134,29 @@ double normalCDF(double value){
     return 0.5 * erfc(-value * sqrt(0.5));
 }
 
-double calD1(double s, double k, double mu, double sigma, int tau){
-    return ((log(s/k) + (mu + 0.5*pow(sigma, 2))*tau)/(sigma*sqrt(tau)));
+double calD1(double s, double k, double rf, double sigma, int tau){
+    return ((log(s/k) + (rf + 0.5*pow(sigma, 2))*tau)/(sigma*sqrt(tau)));
 }
 
-vector<double> deltaHedge(double s, double k, double mu, double sigma, int tau){
+vector<double> deltaHedge(double s, double k, double rf, double sigma, int tau){
     double a0, a1, d, phi, y;
     vector<double> hPath(tau);
 
-    a0 = normalCDF(calD1(s, k, mu, sigma, tau));
+    a0 = normalCDF(calD1(s, k, rf, sigma, tau));
 
     d = 1.0;
     phi = a0*s + d;
 
     for (int i=0; i < tau; i++) {
-        cout << "a: " << a0 << endl;
-        cout << "phi: " << phi << endl;
+        // cout << "a: " << a0 << endl;
+        // cout << "phi: " << phi << endl;
         hPath[i] = phi;
         y = norm_dist();
-        s = s * exp((mu - pow(0.5*sigma, 2)) + sigma * y);
+        s = s * exp((rf - 0.5*pow(sigma, 2)) + (sigma * y));
         phi = a0*s + d;
-        a1 = normalCDF(calD1(s, k, mu, sigma, tau));
-        d = (1+mu)*d + (a0 - a1)*s;
-        a0 = normalCDF(calD1(s, k, mu, sigma, tau));
+        a1 = normalCDF(calD1(s, k, rf, sigma, tau));
+        d = (1+rf)*d + (a0 - a1)*s;
+        a0 = normalCDF(calD1(s, k, rf, sigma, tau));
     }
     return hPath;
 }

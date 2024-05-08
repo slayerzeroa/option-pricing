@@ -7,10 +7,8 @@ using namespace std;
 // Homework 2
 // Write C++ code that gives the path of the asset given its volatility σ and drift µ.
 
-
 vector<double> generate_discrete_path(double mu, double sigma, int len);
 vector<double> generate_continuous_path(double mu, double sigma, int len);
-
 double norm_dist();
 
 int main(){
@@ -50,7 +48,7 @@ vector<double> generate_continuous_path(double mu, double sigma, int len){
     for (int i=0; i<len; ++i){
         s[i] = st;
         y = norm_dist();
-        st = st * exp((mu - pow(0.5*sigma, 2)) + sigma * y);
+        st = st * exp((mu - 0.5*pow(sigma, 2)) + sigma * y);
 
         // cout << y << endl;
     }
