@@ -1,9 +1,9 @@
 # Option_Pricing_Practice
 
-it is my OPTION PRICING PRACTICE REPOSITORY
+### 1. Summary
 
-OMG I'm the robot of pricing...
+Some option pricing codes using Python, C++
 
-HELP ME!!!!!
+### Author
 
-Enjoy it.
+slayerzeroa (Daemyeong Yoo)
