@@ -7,19 +7,20 @@ using namespace std;
 // Homework 2
 // Write C++ code that gives the path of the asset given its volatility σ and drift µ.
 
-vector<double> generate_discrete_path(double mu, double sigma, int len);
-vector<double> generate_continuous_path(double mu, double sigma, int len);
+vector<double> generate_discrete_path(double mu, double sigma, int tau, double st);
+vector<double> generate_continuous_path(double mu, double sigma, int tau, double st);
 double norm_dist();
 
 int main(){
     vector<double> stock_path;
-    double mu, sigma;
-    int len;
-    cout << "Plese Enter the mu, sigma and length" << endl;
-    cin >> mu >> sigma >> len;
-    stock_path = generate_continuous_path(mu, sigma, len);
+    double mu, sigma, st;
+    int tau;
+    cout << "Plese Enter the mu, sigma and tau" << endl;
+    cin >> mu >> sigma >> tau;
+    cout << "Plese Enter the initial value of Stock" << endl;
+    cin >> st;
+    stock_path = generate_continuous_path(mu, sigma, tau, st);
 
-        // Correct way to print the elements of a vector
     for (const double &value : stock_path) {
         cout << value << " ";
     }
@@ -27,11 +28,10 @@ int main(){
 }
 
 
-vector<double> generate_discrete_path(double mu, double sigma, int len){
-    vector<double> s(len);
-    double st=100;
+vector<double> generate_discrete_path(double mu, double sigma, int tau, double st){
+    vector<double> s(tau);
     double y;
-    for (int i=0; i<len; ++i){
+    for (int i=0; i<tau; ++i){
         s[i] = st;
         y = norm_dist();
         st = st + mu * st + sigma * y * st;
@@ -41,11 +41,10 @@ vector<double> generate_discrete_path(double mu, double sigma, int len){
     return s;
 }
 
-vector<double> generate_continuous_path(double mu, double sigma, int len){
-    vector<double> s(len);
-    double st=100;
+vector<double> generate_continuous_path(double mu, double sigma, int tau, double st){
+    vector<double> s(tau);
     double y;
-    for (int i=0; i<len; ++i){
+    for (int i=0; i<tau; ++i){
         s[i] = st;
         y = norm_dist();
         st = st * exp((mu - 0.5*pow(sigma, 2)) + sigma * y);
