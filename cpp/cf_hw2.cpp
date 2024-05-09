@@ -35,8 +35,6 @@ vector<double> generate_discrete_path(double mu, double sigma, int tau, double s
         s[i] = st;
         y = norm_dist();
         st = st + mu * st + sigma * y * st;
-
-        // cout << y << endl;
     }
     return s;
 }
@@ -48,8 +46,6 @@ vector<double> generate_continuous_path(double mu, double sigma, int tau, double
         s[i] = st;
         y = norm_dist();
         st = st * exp((mu - 0.5*pow(sigma, 2)) + sigma * y);
-
-        // cout << y << endl;
     }
     return s;
 }
