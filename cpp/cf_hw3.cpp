@@ -9,11 +9,11 @@ using namespace std;
 // Compare it with the formula for Black Scholes equation.
 // You may use any value for risk-free rate and expiration date.
 
-vector<double> generate_discrete_path(double rf, double sigma, int len);
-vector<double> generate_continuous_path(double rf, double sigma, int len);
+vector<double> generate_discrete_path(double rf, double sigma, int tau, double st);
+vector<double> generate_continuous_path(double rf, double sigma, int tau, double st);
 
 double calculate_payoff(vector<double> s, double k, int type);
-double discount(double s, double rate, int len);
+double discount(double s, double rate, int tau);
 double mean(vector<double> array);
 
 
@@ -21,20 +21,20 @@ double norm_dist();
 
 int main(){
     vector<double> stock_path;
-    double rf, sigma, k;
-    int len, m, type;
+    double rf, sigma, k, st;
+    int tau, m, type;
     double payoff, pv, result;
-    cout << "Plese Enter the rf, sigma, and strike price" << endl;
-    cin >> rf >> sigma >> k;
+    cout << "Plese Enter the rf, sigma, strike price, initial value of stock" << endl;
+    cin >> rf >> sigma >> k >> st;
 
     cout << "Please Enter the expiration date, simulation number and option type(put==0, call==1)" << endl;
-    cin >> len >> m >> type;
+    cin >> tau >> m >> type;
 
     result = 0;
     for (int i=0; i < m; i++){
-        stock_path = generate_continuous_path(rf, sigma, len);
+        stock_path = generate_continuous_path(rf, sigma, tau, st);
         payoff = calculate_payoff(stock_path, k, type);
-        pv = discount(payoff, rf, len);
+        pv = discount(payoff, rf, tau);
         result += pv;
     }
     result /= m;
@@ -43,35 +43,27 @@ int main(){
 }
 
 
-vector<double> generate_discrete_path(double rf, double sigma, int len){
-    vector<double> s(len);
-    double st=100;
+vector<double> generate_discrete_path(double rf, double sigma, int tau, double st){
+    vector<double> s(tau);
     double y;
-    for (int i=0; i<len; ++i){
+    for (int i=0; i<tau; ++i){
         s[i] = st;
         y = norm_dist();
         st = st + rf * st + sigma * y * st;
-
-        // cout << y << endl;
     }
     return s;
 }
 
-vector<double> generate_continuous_path(double rf, double sigma, int len){
-    vector<double> s(len);
-    double st=100;
+vector<double> generate_continuous_path(double rf, double sigma, int tau, double st){
+    vector<double> s(tau);
     double y;
-    for (int i=0; i<len; ++i){
+    for (int i=0; i<tau; ++i){
         s[i] = st;
         y = norm_dist();
         st = st * exp((rf - 0.5*pow(sigma, 2)) + sigma * y);
-
-        // cout << y << endl;
     }
     return s;
 }
-
-
 
 // type: 0==put, 1==call
 double calculate_payoff(vector<double> s, double k, int type) {

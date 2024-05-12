@@ -8,5 +8,3 @@ print(data)
 
 plt.plot(data)
 plt.show()
-
-
