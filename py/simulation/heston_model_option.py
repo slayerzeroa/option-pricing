@@ -1,42 +1,68 @@
 # 라이브러리 설치
 # pip install -r requirements.txt
 
+import time
+import copy
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
 import scipy.stats as stats
-import time
+from scipy.integrate import quad
 
-import copy
+# # Simulation Setting
+# T = 1.0             # Time
+# N = int(252 * T)    # The number of split
+# dt = T/N            # Delta time
+# sim = 100000        # The number of simulations
+
+# # Initial Value
+# S0 = 100.0          # Initial Stock Price
+# v0 = 0.25**2        # Initial Volatility
+
+# # Constants of Heston Process
+# ksi = 0.5           # Volatility of Volatility
+# kappa = 3           # Kappa; the rate at which νt reverts to θ.
+# theta = 0.2**2      # Theta;  the long variance, or long-run average variance of the price; as t tends to infinity, the expected value of νt tends to θ.
+# rho = -0.2          # Rho; the correlation of the two Wiener processes. (Returns <-> Volatility in this simulation)
+
+# # Risk Free Rate
+# rf = 0.02
+# rf_daily = np.exp(rf/N) - 1
+
+# # Strike Price
+# K = 110
 
 
 # Simulation Setting
-T = 1.0             # Time
-N = 252             # The number of split
+T = float(input("[T]; Time to Maturity: "))
+N = int(252 * T)    # The number of split
 dt = T/N            # Delta time
-sim = 1000          # The number of simulations
+sim = int(input("The number of simulations: "))        # The number of simulations
 
 # Initial Value
-S0 = 100.0          # Initial Stock Price
-v0 = 0.25**2        # Initial Volatility
+S0 = float(input("[S0]; Initial Stock Price: "))          # Initial Stock Price
+v0 = float(input("[v0]; Initial Volatility: "))        # Initial Volatility
 
 # Constants of Heston Process
-ksi = 0.5           # Volatility of Volatility
-kappa = 3           # Kappa; the rate at which νt reverts to θ.
-theta = 0.2**2      # Theta;  the long variance, or long-run average variance of the price; as t tends to infinity, the expected value of νt tends to θ.
-rho = -0.2          # Rho; the correlation of the two Wiener processes. (Returns <-> Volatility in this simulation)
-mu = 0.02           # mu; Expected Returns
+ksi = float(input("[Ksi or Sigma]; Volatility of Volatility: "))           # Volatility of Volatility
+kappa = float(input("[Kappa]; the rate at which νt reverts to θ: "))           # Kappa; the rate at which νt reverts to θ.
+theta = float(input("[Theta]; long-run average variance of the price: "))      # Theta;  the long variance, or long-run average variance of the price; as t tends to infinity, the expected value of νt tends to θ.
+rho = float(input("[Rho]; the correlation of the two Wiener processes: "))          # Rho; the correlation of the two Wiener processes. (Returns <-> Volatility in this simulation)
 
 # Risk Free Rate
-rf = 0.02
+rf = float(input("[Risk Free Rate]: "))
 rf_daily = np.exp(rf/N) - 1
 
 # Strike Price
-K = 110
+K = float(input("[K]; Strike Price: "))
 
 
 
+'''
+Monte Carlo Simulation
+'''
 
 def heston_process(ksi, kappa, theta, rho, mu, return_vol=False, random_seed=21):
   '''
@@ -47,7 +73,6 @@ def heston_process(ksi, kappa, theta, rho, mu, return_vol=False, random_seed=21)
   mu            # Mu;    Expected Returns
   '''
   np.random.seed(random_seed)
-  dt = T/N
 
   mean = np.array([0, 0])
   cov = np.array([[1,rho],
@@ -71,7 +96,7 @@ def heston_process(ksi, kappa, theta, rho, mu, return_vol=False, random_seed=21)
 
 
 
-S, V = heston_process(ksi, kappa, theta, rho, mu, return_vol = True)
+S, V = heston_process(ksi, kappa, theta, rho, rf, return_vol = True)
 
 
 # S[-1]에서 K를 뺀 값이 Call Option의 Payoff
@@ -86,10 +111,11 @@ put_p[put_p < 0] = 0
 call_option_price = np.mean(call_p) / ((1 + rf_daily)**N)
 put_option_price = np.mean(put_p) / ((1 + rf_daily)**N)
 
+print("Call Option Price:", call_option_price)
+print("Put Option Price:", put_option_price)
 
 # Excel로 내보내기
-export_S = copy.deepcopy(S)
-export_S = pd.DataFrame(export_S)
+export_S = pd.DataFrame(S)
 
 export_S['option_price'] = None
 
